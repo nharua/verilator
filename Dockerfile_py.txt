@@ -1,0 +1,126 @@
+FROM ubuntu:22.04 
+
+USER root
+WORKDIR /root
+
+SHELL [ "/bin/bash", "-c" ]
+
+ARG PYTHON_VERSION_TAG=3.11.4
+ARG LINK_PYTHON_TO_PYTHON3=https://www.python.org/ftp/python
+
+# Existing lsb_release causes issues with modern installations of Python3
+# https://github.com/pypa/pip/issues/4924#issuecomment-435825490
+# Set (temporarily) DEBIAN_FRONTEND to avoid interacting with tzdata
+ENV TZ=Asia/Ho_Chi_Minh \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y \
+    && apt-get upgrade -y \
+    && apt-get -y install \
+    build-essential \
+    sudo \
+    zlib1g-dev \
+    libncurses5-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    libssl-dev \
+    libreadline-dev \
+    libffi-dev \
+    libsqlite3-dev \
+    wget \
+    libbz2-dev \
+    pkg-config \
+    tk-dev \
+    wget \
+    curl \
+    git \
+    make \
+    bash-completion \
+    tree \
+    vim \
+    neofetch
+
+RUN sudo apt install -y vim-gtk3
+
+RUN cd /usr/src \
+    && sudo wget ${LINK_PYTHON_TO_PYTHON3}/${PYTHON_VERSION_TAG}/Python-${PYTHON_VERSION_TAG}.tgz \
+    && sudo tar -xzf Python-${PYTHON_VERSION_TAG}.tgz \
+    && cd Python-${PYTHON_VERSION_TAG} \
+    && ./configure --enable-optimizations \
+    && sudo make altinstall
+
+# # Update the links to allow you to run python as opposed to specifying python3.11 when you want to run it.
+RUN sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.11 1
+RUN sudo update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.11 1
+
+# Enable tab completion by uncommenting it from /etc/bash.bashrc
+# The relevant lines are those below the phrase "enable bash completion in interactive shells"
+RUN export SED_RANGE="$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+1)),$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+7))" && \
+    sed -i -e "${SED_RANGE}"' s/^#//' /etc/bash.bashrc && \
+    unset SED_RANGE
+
+# Build Desktop GUI
+RUN apt install -y cinnamon locales
+
+# RUN apt install -y cinnamon-desktop-environment locales
+
+# RUN apt install -y ubuntucinnamon-desktop locales
+
+RUN apt install -y xrdp tigervnc-standalone-server && \
+    adduser xrdp ssl-cert && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
+
+ARG USER=docker
+ARG PASS=1234
+
+# Create user "docker" with sudo powers
+RUN useradd -m $USER && \
+    usermod -aG sudo $USER && \
+    chsh -s /bin/bash $USER && \
+    echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    cp /root/.bashrc /home/$USER/ && \
+    mkdir /home/$USER/data && \
+    chown -R --from=root $USER /home/$USER
+
+# Use C.UTF-8 locale to avoid issues with ASCII encoding
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# WORKDIR /home/docker/data
+WORKDIR /workDir
+ENV HOME /home/docker
+ENV USER docker
+USER docker
+ENV PATH /home/docker/.local/bin:$PATH
+# Avoid first use of sudo warning. c.f. https://askubuntu.com/a/22614/781671
+RUN touch $HOME/.sudo_as_admin_successful
+
+RUN echo '#!/bin/sh' | sudo tee /env \
+    && echo 'export XDG_SESSION_DESKTOP=cinnamon' | sudo tee -a /env \
+    && echo 'export XDG_SESSION_TYPE=x11' | sudo tee -a /env \
+    && echo 'export XDG_CURRENT_DESKTOP=X-Cinnamon' | sudo tee -a /env \
+    && echo 'export XDG_CONFIG_DIRS=/etc/xdg/xdg-cinnamon:/etc/xdg'| sudo tee -a /env \
+    && sudo chmod 555 /env
+
+RUN echo '#!/bin/sh' | sudo tee /xstartup \
+    && echo '. /env' | sudo tee -a /xstartup \
+    && echo 'exec dbus-run-session -- cinnamon-session' | sudo tee -a /xstartup \
+    && sudo chmod +x /xstartup
+
+RUN mkdir /home/$USER/.vnc && \
+    echo $PASS | vncpasswd -f > /home/$USER/.vnc/passwd && \
+    chmod 0600 /home/$USER/.vnc/passwd && \
+    chown -R $USER:$USER /home/$USER/.vnc
+
+RUN sudo cp -f /xstartup /etc/xrdp/startwm.sh && \
+    cp -f /xstartup /home/$USER/.vnc/xstartup
+
+RUN echo '#!/bin/sh' | sudo tee /startvnc \
+    && echo 'sudo -u $USER -g $USER -- vncserver -rfbport 5902 -geometry 1920x1080 -depth 24 -verbose -localhost no -autokill no' | sudo tee -a /startvnc \
+    && sudo chmod +x /startvnc
+
+# EXPOSE 3389
+EXPOSE 5902
+
+CMD sudo service dbus start; /startvnc; /bin/bash

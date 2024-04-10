@@ -22,27 +22,28 @@ RUN apt-get update -y \
 	libcpprest-dev \
 	git \
 	vim \
-    sudo
+	vim-gtk3 \
+    sudo \
+	tree \
+	zsh \
+	dbus-x11 \
+	bash-completion \
+	curl \
+	wget
 	
-# Enable tab completion by uncommenting it from /etc/bash.bashrc
-# The relevant lines are those below the phrase "enable bash completion in interactive shells"
-RUN export SED_RANGE="$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+1)),$(($(sed -n '\|enable bash completion in interactive shells|=' /etc/bash.bashrc)+7))" && \
-    sed -i -e "${SED_RANGE}"' s/^#//' /etc/bash.bashrc && \
-    unset SED_RANGE
-
-# Build Desktop GUI
-RUN apt install -y x11vnc xvfb
-
-ARG USER=docker
-ARG PASS=1234
+# Run GUI with Build-in Xserver on Windows 11
+# https://www.youtube.com/watch?v=UEre6Bd75dw
+# run docker as following
+# docker run -it -v \\wsl.localhost\Ubuntu\mnt\wslg:/tmp my_ubuntu:v1.0 /bin/bash
+ENV DISPLAY=:0
 
 # Create user "docker" with sudo powers
+ARG USER=docker
 RUN useradd -m $USER && \
     usermod -aG sudo $USER && \
-    chsh -s /bin/bash $USER && \
+    chsh -s /usr/bin/zsh $USER && \
     echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     cp /root/.bashrc /home/$USER/ && \
-    mkdir /home/$USER/data && \
     chown -R --from=root $USER /home/$USER
 
 # Use C.UTF-8 locale to avoid issues with ASCII encoding
@@ -57,11 +58,16 @@ ENV PATH /home/docker/.local/bin:$PATH
 # Avoid first use of sudo warning. c.f. https://askubuntu.com/a/22614/781671
 RUN touch $HOME/.sudo_as_admin_successful
 
-RUN mkdir /home/$USER/.vnc
-RUN x11vnc -storepasswd $PASS ~/.vnc/passwd \
-	&& chmod 0600 /home/$USER/.vnc/passwd \
-    && chown -R $USER:$USER /home/$USER/.vnc
+# Install ohmyzsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 RUN sudo chmod 777 /workDir
 
-CMD /bin/bash
+#CMD /bin/bash
+CMD ["/usr/bin/zsh"]
+
+# How to build 
+# docker buildx build --rm --tag verilator:v1.1 --file .\Dockerfile .
+
+# How to run
+# docker run -ti --rm --env DISPLAY=host.docker.internal:0 verilator:v1.0 /bin/bash
