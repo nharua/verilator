@@ -80,7 +80,21 @@ RUN sudo apt-get update && \
 COPY .emacs.d /home/docker/.emacs.d
 RUN	sudo chown -R $USER /home/$USER
 
+# Setup icarus Verilog (v1.7)
+RUN sudo apt install -y iverilog
 
+# Setup tmux (v2.0)
+RUN sudo apt install -y tmux
+COPY .tmux.conf /home/docker/
+RUN sudo chown $USER.$USER /home/$USER/.tmux.conf
+RUN sudo chmod 644 /home/$USER/.tmux.conf
+
+WORKDIR /home/$USER
+RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+RUN git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect
+
+
+WORKDIR /workDir
 #CMD /bin/bash
 CMD ["/usr/bin/zsh"]
 
