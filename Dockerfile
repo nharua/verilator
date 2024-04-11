@@ -102,6 +102,22 @@ RUN sudo ln -sf /bin/bash /bin/sh
 # setup meld
 RUN sudo apt install -y meld
 
+# setup neovim
+RUN sudo apt-get install -y python3-neovim
+RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+RUN sudo tar -C /opt -xzf nvim-linux64.tar.gz
+RUN rm -f /home/$USER/nvim-linux64.tar.gz
+RUN sudo rm -f /usr/bin/nvim
+RUN sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/bin/nvim
+RUN sudo apt install -y ripgrep python3-pip fd-find
+RUN sudo pip3 install --upgrade pynvim
+RUN git clone https://github.com/nharua/lazyvim.git /home/docker/.config/nvim
+# install this to fix cannot install pyright in Mason
+RUN curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+RUN sudo apt install nodejs -y
+# install this to fix cannot install black && isort in Mason
+RUN sudo apt install -y python3-venv 
+
 WORKDIR /workDir
 CMD /usr/bin/bash
 #CMD ["/usr/bin/zsh"]
