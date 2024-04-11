@@ -18,12 +18,12 @@
 
 ### How to build the Docker container:
 ```bash
-docker buildx build --rm --tag verilator:versiontag --file ./Dockerfile .
+docker buildx build --rm --tag verilator --file ./Dockerfile .
 ```
 
 ### How to run
 ```bash
-docker run -ti --env DISPLAY=host.docker.internal:0 -v yourlocalDir:/workDir --hostname verilator verilator:versiontag /usr/bin/bash
+docker run -ti --env DISPLAY=host.docker.internal:0 -v yourlocalDir:/workDir --hostname verilator verilator /usr/bin/bash
 ```
 
 ### Note
