@@ -97,6 +97,10 @@ RUN git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins
 COPY .fonts /home/docker/.fonts
 COPY .bashrc /home/docker/
 RUN	sudo chown -R $USER.$USER /home/$USER
+RUN sudo ln -sf /bin/bash /bin/sh
+
+# setup meld
+RUN sudo apt install -y meld
 
 WORKDIR /workDir
 CMD /usr/bin/bash
