@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 USER root
 WORKDIR /root
 
-SHELL [ "/bin/bash", "-c" ]
+SHELL [ "/usr/bin/bash", "-c" ]
 
 # Set (temporarily) DEBIAN_FRONTEND to avoid interacting with tzdata
 ENV TZ=Asia/Ho_Chi_Minh \
@@ -41,7 +41,7 @@ ENV DISPLAY=:0
 ARG USER=docker
 RUN useradd -m $USER && \
     usermod -aG sudo $USER && \
-    chsh -s /usr/bin/zsh $USER && \
+#    chsh -s /usr/bin/zsh $USER && \
     echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     cp /root/.bashrc /home/$USER/ && \
     chown -R --from=root $USER /home/$USER
@@ -59,7 +59,7 @@ ENV PATH /home/docker/.local/bin:$PATH
 RUN touch $HOME/.sudo_as_admin_successful
 
 # Install ohmyzsh
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 RUN sudo chmod 777 /workDir
 
@@ -93,13 +93,17 @@ WORKDIR /home/$USER
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 RUN git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect
 
+# setup bashshell
+COPY .fonts /home/docker/.fonts
+COPY .bashrc /home/docker/
+RUN	sudo chown -R $USER.$USER /home/$USER
 
 WORKDIR /workDir
-#CMD /bin/bash
-CMD ["/usr/bin/zsh"]
+CMD /usr/bin/bash
+#CMD ["/usr/bin/zsh"]
 
 # How to build 
-# docker buildx build --rm --tag verilator:v1.1 --file .\Dockerfile .
+# docker buildx build --rm --tag verilator:versiontag --file .\Dockerfile .
 
 # How to run
-# docker run -ti --rm --env DISPLAY=host.docker.internal:0 verilator:v1.0 /bin/bash
+# docker run -ti --rm --env DISPLAY=host.docker.internal:0 -v yourlocalDir:/workDir --hostname verilator verilator:versiontag /usr/bin/bash
