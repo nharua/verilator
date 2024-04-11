@@ -1,12 +1,13 @@
 **The Dockerfile includes:**
 
 1. Ubuntu 22.04
-2. Simulation software:
+   - tmux 3.2a
+3. Simulation software:
    - Verilator 4.038 (2020-07-11, revision v4.036-114-g0cd4a57ad)
    - Icarus Verilog version 11.0
    - GTKWave Analyzer v3.3.104 (Waveform viewer)
 
-3. Editor software:
+4. Editor software:
    - Emacs 29.3 with Verilog-mode 2024-03-01-7448f97-vpo-GNU
    - Vim 8.2
    - Gvim 8.2
