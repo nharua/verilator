@@ -63,6 +63,24 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 RUN sudo chmod 777 /workDir
 
+# Install Emacs
+#RUN sudo apt install -y software-properties-common
+#RUN sudo add-apt-repository ppa:ubuntuhandbook1/emacs
+#ENV DEBIAN_FRONTEND=noninteractive
+#RUN sudo apt install -y emacs emacs-common
+
+# Install Emacs
+RUN sudo apt-get update && \
+    sudo apt-get install -y software-properties-common && \
+    sudo add-apt-repository -y ppa:ubuntuhandbook1/emacs && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends emacs
+
+# Setup verilog/systemverilog for emacs
+COPY .emacs.d /home/docker/.emacs.d
+RUN	sudo chown -R $USER /home/$USER
+
+
 #CMD /bin/bash
 CMD ["/usr/bin/zsh"]
 

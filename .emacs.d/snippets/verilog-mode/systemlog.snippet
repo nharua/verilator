@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: SystemverilogHeader
+# key: header
+# --
+
+///////////////////////////////////////////////////////////////////////////
+// Copyright `(format-time-string "%Y")` DreamBig Semiconductor, Inc. All Rights Reserved.
+//
+// No portions of this material may be reproduced in any form without
+// the written permission of DreamBig Semiconductor Inc.
+// All information contained in this document is DreamBig Semiconductor Inc.
+// company confidential, proprietary and trade secret.
+//
+//  Filename     : `(file-name-nondirectory (buffer-file-name))`
+/// Author       : `(substring (shell-command-to-string "git config user.name") 0 -1)` <`(substring (shell-command-to-string "git config user.email") 0 -1)`>
+/// Date Created : `(format-time-string "%Y-%m-%d")`
+/// Description  : ${1:detailed description of function}
+///////////////////////////////////////////////////////////////////////////
+$0
