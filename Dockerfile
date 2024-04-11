@@ -118,6 +118,9 @@ RUN sudo apt install nodejs -y
 # install this to fix cannot install black && isort in Mason
 RUN sudo apt install -y python3-venv 
 
+# setup Misc package
+RUN sudo apt install -y tcl
+
 WORKDIR /workDir
 CMD /usr/bin/bash
 #CMD ["/usr/bin/zsh"]
