@@ -10,9 +10,9 @@ ENV TZ=Asia/Ho_Chi_Minh \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
-    apt upgrade -y
-
-RUN apt install -y \
+    apt upgrade -y && \
+	# Setup some mics packages
+	apt install -y \
 	git \
 	make \
 	gcc \
@@ -25,10 +25,8 @@ RUN apt install -y \
 	dbus-x11 \
 	bash-completion \
 	curl \
-	wget
-	
-# Install Prerequisites for Verilator
-RUN apt install -y \
+	wget \	
+	# Install Prerequisites for Verilator
 	help2man \
 	libfl2 \
 	libfl-dev \
@@ -67,12 +65,11 @@ RUN ../configure --prefix=/usr/local/systemc && \
 	make install
 	
 # Install RTL Mics Tools
-WORKDIR /root
-RUN apt install -y tcl
-RUN apt install -y vim \
-	vim-gtk3
-RUN apt install -y meld
-RUN apt install -y gtkwave
+RUN apt install -y tcl \
+	vim \
+	vim-gtk3 \
+	meld \
+	gtkwave
 
 # Switch to normal user with sudo permision "docker"
 # Create user "docker" with sudo powers.
@@ -93,8 +90,6 @@ ENV LANG=C.UTF-8
 # Setup tmux (v2.0)
 RUN sudo apt install -y tmux
 COPY .tmux.conf /home/docker/
-RUN sudo chown $USER.$USER /home/$USER/.tmux.conf
-RUN sudo chmod 644 /home/$USER/.tmux.conf
 RUN curl https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/master/completions/tmux > /home/$USER/.bash_completion
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -106,7 +101,6 @@ RUN touch $HOME/.sudo_as_admin_successful
 # setup bashshell
 COPY .fonts /home/docker/.fonts
 COPY .bashrc /home/docker/
-RUN	sudo chown -R $USER.$USER /home/$USER
 
 # Install Emacs
 RUN sudo apt-get update && \
@@ -117,7 +111,6 @@ RUN sudo apt-get update && \
 
 # Setup verilog/systemverilog for emacs
 COPY .emacs.d /home/docker/.emacs.d
-RUN	sudo chown -R $USER /home/$USER
 
 # setup neovim
 RUN sudo apt-get install -y python3-neovim
@@ -146,11 +139,14 @@ WORKDIR /tmp/verilator
 RUN git checkout stable
 RUN autoconf
 RUN unset VERILATOR_ROOT
-RUN ./configure --prefix /opt/verilator
-RUN make
-RUN sudo make install
-WORKDIR /tmp
-RUN sudo rm -rf *
+RUN ./configure --prefix /opt/verilator && \
+	make && \
+	sudo make install
+
+# Clean up
+RUN sudo rm -rf /tmp/* && \
+	sudo apt-get autoremove && \
+	sudo chown -R $USER.$USER /home/$USER
 
 WORKDIR /workDir
 RUN sudo chmod 777 /workDir
