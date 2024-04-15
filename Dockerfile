@@ -95,6 +95,7 @@ RUN sudo apt install -y tmux
 COPY .tmux.conf /home/docker/
 RUN sudo chown $USER.$USER /home/$USER/.tmux.conf
 RUN sudo chmod 644 /home/$USER/.tmux.conf
+RUN curl https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/master/completions/tmux > /home/$USER/.bash_completion
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 RUN git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect
