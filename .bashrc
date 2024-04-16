@@ -82,7 +82,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-export TERM=xterm-256color
+export TERM=screen-256color
 export SYSTEMC_HOME=/usr/local/systemc
 export SYSTEMC_INCLUDE=$SYSTEMC_HOME/include
 export SYSTEMC_LIBDIR=$SYSTEMC_HOME/lib-linux64

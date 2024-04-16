@@ -91,7 +91,7 @@ ENV LANG=C.UTF-8
 
 # Setup tmux (v2.0)
 RUN sudo apt install -y tmux
-COPY .tmux.conf /home/docker/
+COPY .tmux.conf /home/$USER/
 RUN curl https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/master/completions/tmux > /home/$USER/.bash_completion
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -101,8 +101,8 @@ RUN git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins
 RUN touch $HOME/.sudo_as_admin_successful
 
 # setup bashshell
-COPY .fonts /home/docker/.fonts
-COPY .bashrc /home/docker/
+COPY .fonts /home/$USER/.fonts
+COPY .bashrc /home/$USER/
 
 # Install Emacs
 RUN sudo apt-get update && \
@@ -112,10 +112,11 @@ RUN sudo apt-get update && \
     sudo apt-get install -y --no-install-recommends emacs
 
 # Setup verilog/systemverilog for emacs
-COPY .emacs.d /home/docker/.emacs.d
+RUN git clone https://github.com/nharua/emacs.git /home/$USER/.emacs.d
 
 # setup neovim
-RUN sudo apt-get install -y python3-neovim
+RUN sudo apt-get install -y python3-neovim luarocks
+RUN sudo luarocks install jsregexp
 RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
 RUN sudo tar -C /opt -xzf nvim-linux64.tar.gz
 RUN rm -f /home/$USER/nvim-linux64.tar.gz
@@ -123,7 +124,7 @@ RUN sudo rm -f /usr/bin/nvim
 RUN sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/bin/nvim
 RUN sudo apt install -y ripgrep python3-pip fd-find
 RUN sudo pip3 install --upgrade pynvim
-RUN git clone https://github.com/nharua/lazyvim.git /home/docker/.config/nvim
+RUN git clone https://github.com/nharua/lazyvim.git /home/$USER/.config/nvim
 # install this to fix cannot install pyright in Mason
 RUN curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 RUN sudo apt install nodejs -y
