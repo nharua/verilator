@@ -46,7 +46,9 @@ RUN apt update && \
 	yapf3 \
 	bear \
 	python3-pip \
-	ninja-build
+	ninja-build \
+	# Install Prerequisites for iverilog
+	gperf
 	
 # Compile systemc
 WORKDIR /tmp
@@ -128,9 +130,16 @@ RUN sudo apt install nodejs -y
 # install this to fix cannot install black && isort in Mason
 RUN sudo apt install -y python3-venv 
 
-# Setup icarus Verilog (v1.7)
-RUN sudo apt install -y iverilog
-RUN sudo ln -sf /bin/bash /bin/sh
+# Setup icarus Verilog (v12 stable)
+WORKDIR /tmp
+RUN git clone https://github.com/steveicarus/iverilog.git
+WORKDIR /tmp/iverilog
+RUN git checkout --track -b v12-branch origin/v12-branch
+RUN git pull
+RUN sh autoconf.sh
+RUN ./configure --prefix=/opt/iverilog && \
+	make && \
+	sudo make install
 
 # Setup verilator from source
 WORKDIR /tmp

@@ -87,7 +87,7 @@ export SYSTEMC_HOME=/usr/local/systemc
 export SYSTEMC_INCLUDE=$SYSTEMC_HOME/include
 export SYSTEMC_LIBDIR=$SYSTEMC_HOME/lib-linux64
 export LD_LIBRARY_PATH=$SYSTEMC_HOME/lib-linux64
-export PATH=/opt/verilator/bin:$PATH
+export PATH=/opt/verilator/bin:/opt/iverilog/bin:$PATH
 
 # Modify bash shell prompt
 orange=$(tput setaf 166);
