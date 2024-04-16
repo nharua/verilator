@@ -3,8 +3,8 @@
 1. Ubuntu 22.04
    - tmux 3.2a
 3. Simulation software:
-   - Verilator 4.038 (2020-07-11, revision v4.036-114-g0cd4a57ad)
-   - Icarus Verilog version 11.0
+   - Verilator 5.024 (2024-04-05 rev v5.024-42-gc561fe8ba)
+   - Icarus Verilog version 12.0
    - GTKWave Analyzer v3.3.104 (Waveform viewer)
 
 4. Editor software:
