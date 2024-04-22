@@ -16,7 +16,7 @@
    - Git 2.34.1
    - tcl 8.2
 
-### How to build the Docker container:
+### How to build the Docker:
 ```bash
 docker buildx build --rm --tag verilator --file ./Dockerfile .
 ```
